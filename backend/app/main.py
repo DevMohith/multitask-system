@@ -5,16 +5,20 @@ import threading
 
 app = FastAPI()
 
-# CORS FIX
+# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # you can restrict later
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Redis listener
-threading.Thread(target=redis_listener, daemon=True).start()
+@app.on_event("startup")
+def start_redis_listener():
+    t = threading.Thread(target=redis_listener, daemon=True)
+    t.start()
+    print("✔ Redis listener started")
 
+# Register routes
 app.include_router(tasks_router, prefix="/task")

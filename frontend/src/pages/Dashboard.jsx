@@ -1,23 +1,22 @@
-import { useState } from "react";
+import React from "react";
 import useTaskStream from "../hooks/useTaskStream";
-import TaskCard from "../components/TaskCard";
 
 export default function Dashboard() {
-  const [tasks, setTasks] = useState([]);
+  const results = useTaskStream();  // <---- USE THE HOOK
 
-  useTaskStream((message) => {
-    setTasks((prev) => [...prev, message]);
-  });
+  const createTask = async (type) => {
+    const payload =
+      type === "research"
+        ? "india population"
+        : "x=10; y=20; z=x+y";
 
-  async function createTask(type) {
-    const payload = type === "research"
-      ? "india population"
-      : "x=10; y=20; z=x+y";
-
-    await fetch(`http://localhost:8000/task/create?type=${type}&payload=${payload}`, {
-      method: "POST"
-    });
-  }
+    await fetch(
+      `http://localhost:8000/task/create?type=${type}&payload=${payload}`,
+      {
+        method: "POST",
+      }
+    );
+  };
 
   return (
     <div style={{ padding: 20 }}>
@@ -26,8 +25,21 @@ export default function Dashboard() {
       <button onClick={() => createTask("research")}>Run Research Task</button>
       <button onClick={() => createTask("python")}>Run Python Task</button>
 
-      {tasks.map((task, index) => (
-        <TaskCard key={index} task={task} />
+      <h2>Results:</h2>
+
+      {results.map((task, i) => (
+        <div
+          key={i}
+          style={{
+            padding: 10,
+            marginTop: 10,
+            border: "1px solid #888",
+            borderRadius: 8,
+          }}
+        >
+          <h3>{task.type?.toUpperCase()} RESULT</h3>
+          <pre>{JSON.stringify(task, null, 2)}</pre>
+        </div>
       ))}
     </div>
   );

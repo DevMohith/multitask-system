@@ -1,14 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-export default function useTaskStream(onMessage) {
+export default function useTaskStream() {
+  const [messages, setMessages] = useState([]);
+
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8000/task/ws");
+    const ws = new WebSocket("ws://127.0.0.1:8000/task/ws");
 
-    socket.onmessage = (event) => {
+    ws.onopen = () => console.log("WS Connected!");
+
+    ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      onMessage(data);
+      console.log("WS MSG:", data);   // <---- SUPER IMPORTANT
+      setMessages((prev) => [data, ...prev]);
     };
 
-    return () => socket.close();
+    ws.onerror = (err) => console.error("WS Error:", err);
+
+    return () => ws.close();
   }, []);
+
+  return messages;
 }
