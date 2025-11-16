@@ -5,3 +5,4 @@ rq
 pydantic 
 python-dotenv 
 websockets
+rq-win

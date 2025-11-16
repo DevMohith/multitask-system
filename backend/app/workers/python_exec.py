@@ -1,17 +1,22 @@
 import time
+import redis
+import json
+
+redis_pub = redis.Redis(host="localhost", port=6379, db=0)
 
 def run_python_task(task_id: str, code: str):
-    # WARNING: sandboxing must be added for real production
     try:
-        output = {}
-        exec(code, {}, output)
-        result = output
+        local = {}
+        exec(code, {}, local)
+        output = local
     except Exception as e:
-        result = {"error": str(e)}
+        output = {"error": str(e)}
 
-    time.sleep(1)
-    return {
+    result = {
         "task_id": task_id,
         "type": "python",
-        "result": result
+        "result": output
     }
+
+    redis_pub.publish("task_updates", json.dumps(result))
+    return result
