@@ -5,6 +5,7 @@ from app.queue.redis_conn import redis_conn
 from app.workers.research import run_research_task
 from app.workers.python_exec import run_python_task
 from app.events.manager import manager
+from worker import research_task, python_task
 import asyncio
 import threading
 import redis
@@ -30,13 +31,9 @@ def create_task(type: str, payload: str):
     task_id = str(uuid4())
 
     if type == "research":
-        job = task_queue.enqueue(run_research_task, task_id, payload)
-
+        research_task.send(task_id, payload)
     elif type == "python":
-        job = task_queue.enqueue(run_python_task, task_id, payload)
-
-    else:
-        return {"error": "Unknown task type"}
+        python_task.send(task_id, payload)
 
     return {"task_id": task_id, "status": "queued"}
 
