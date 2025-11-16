@@ -50,12 +50,3 @@ def create_task(type: str, payload: str):
         python_task.send(task_id, payload)     # Dramatiq
 
     return {"task_id": task_id, "status": "queued"}
-
-@router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        while True:
-            await asyncio.sleep(0.1)  # prevent blocking
-    except:
-        manager.disconnect(websocket)

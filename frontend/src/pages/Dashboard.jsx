@@ -2,7 +2,7 @@ import React from "react";
 import useTaskStream from "../hooks/useTaskStream";
 
 export default function Dashboard() {
-  const results = useTaskStream();  // <---- USE THE HOOK
+  const results = useTaskStream(); 
 
   const createTask = async (type) => {
     const payload =
@@ -11,7 +11,7 @@ export default function Dashboard() {
         : "x=10; y=20; z=x+y";
 
     await fetch(
-      `http://localhost:8000/task/create?type=${type}&payload=${payload}`,
+      `http://127.0.0.1:8000/task/create?type=${type}&payload=${payload}`,
       {
         method: "POST",
       }

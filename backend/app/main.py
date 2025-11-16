@@ -1,7 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.tasks import router as tasks_router, redis_listener
 import threading
+import asyncio
+from app.events.manager import manager
 
 app = FastAPI()
 
@@ -14,11 +16,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.on_event("startup")
-def start_redis_listener():
-    t = threading.Thread(target=redis_listener, daemon=True)
-    t.start()
-    print("✔ Redis listener started")
+@app.websocket("/task/ws")
+async def ws_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            await asyncio.sleep(0.1)  # keep alive
+    finally:
+        manager.disconnect(websocket)
 
-# Register routes
+# include REST routes
 app.include_router(tasks_router, prefix="/task")
+
+# start Redis listener
+threading.Thread(target=redis_listener, daemon=True).start()
