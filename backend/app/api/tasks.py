@@ -16,7 +16,7 @@ def redis_listener():
     import asyncio
     import time
 
-    print("🚀 Redis listener started")
+    print(" Redis listener started")
 
     pubsub = redis_client.pubsub()
     pubsub.subscribe("task_updates")
