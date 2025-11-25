@@ -13,7 +13,7 @@ redis_pub = redis.Redis(host="localhost", port=6379, db=0)
 
 @dramatiq.actor
 def research_task(task_id, query):
-    print("🔥 WORKER RECEIVED TASK:", task_id, query)
+    print(" WORKER RECEIVED TASK:", task_id, query)
 
     # TRY WORLD BANK POPULATION DATA
     population = None
@@ -28,7 +28,7 @@ def research_task(task_id, query):
             population_data = wb_json[1][0]
             population = population_data.get("value")
         except Exception as e:
-            print("⚠️ World Bank fetch failed:", e)
+            print(" World Bank fetch failed:", e)
 
     # GET WIKIPEDIA SUMMARY
     url = "https://en.wikipedia.org/w/api.php"
@@ -53,8 +53,8 @@ def research_task(task_id, query):
 
     try:
         r = requests.get(url, params=params, headers=headers, timeout=10)
-        print("📥 WIKI RAW STATUS:", r.status_code)
-        print("📥 WIKI RAW TEXT SAMPLE:", r.text[:200])
+        print(" WIKI RAW STATUS:", r.status_code)
+        print(" WIKI RAW TEXT SAMPLE:", r.text[:200])
 
         data = r.json()
         pages = data.get("query", {}).get("pages", {})
@@ -65,9 +65,9 @@ def research_task(task_id, query):
         link = f"https://en.wikipedia.org/?curid={pageid}" if pageid else None
 
     except Exception as e:
-        print("❌ Wiki error:", e)
+        print(" Wiki error:", e)
 
-    # 3️⃣ FINAL RESPONSE
+    # FINAL RESPONSE
     final_summary = summary
 
     # If summary empty but population exists → create own summary
@@ -84,9 +84,9 @@ def research_task(task_id, query):
         "images": []
     }
 
-    print("🔥 WORKER PUBLISHING TO REDIS:", result)
+    print("WORKER PUBLISHING TO REDIS:", result)
     redis_pub.publish("task_updates", json.dumps(result))
-    print("🔥 WORKER FINISHED PROCESSING:", task_id)
+    print("WORKER FINISHED PROCESSING:", task_id)
 
     
 @dramatiq.actor
