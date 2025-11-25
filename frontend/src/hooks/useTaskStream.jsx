@@ -10,7 +10,7 @@ export default function useTaskStream() {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("WS MSG:", data);   // <---- SUPER IMPORTANT
+      console.log("WS MSG:", data);  
       setMessages((prev) => [data, ...prev]);
     };
 
